@@ -166,32 +166,213 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     }
     const runners: Runner[] = [];
 
+    // Create a futuristic racing car with neon effects
+    const createCarMesh = (color: number) => {
+        const carGroup = new THREE.Group();
+        
+        // Sleek car body (low profile sports car shape)
+        const bodyShape = new THREE.Shape();
+        bodyShape.moveTo(-0.6, 0);
+        bodyShape.lineTo(0.6, 0);
+        bodyShape.lineTo(0.5, 0.3);
+        bodyShape.lineTo(-0.5, 0.3);
+        bodyShape.lineTo(-0.6, 0);
+        
+        const bodyGeo = new THREE.BoxGeometry(1.4, 0.4, 3);
+        const bodyMat = new THREE.MeshBasicMaterial({ color: color });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = 0.25;
+        carGroup.add(body);
+        
+        // Cockpit (angular windshield)
+        const cockpitGeo = new THREE.BoxGeometry(1, 0.35, 1.5);
+        const cockpitMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a });
+        const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
+        cockpit.position.set(0, 0.55, -0.3);
+        carGroup.add(cockpit);
+        
+        // Neon underglow
+        const underglowGeo = new THREE.BoxGeometry(1.6, 0.05, 3.2);
+        const underglowMat = new THREE.MeshBasicMaterial({ 
+          color: color, 
+          transparent: true, 
+          opacity: 0.9, 
+          blending: THREE.AdditiveBlending 
+        });
+        const underglow = new THREE.Mesh(underglowGeo, underglowMat);
+        underglow.position.y = 0.02;
+        carGroup.add(underglow);
+        
+        // Side neon strips
+        const stripGeo = new THREE.BoxGeometry(0.05, 0.1, 2.8);
+        const stripMat = new THREE.MeshBasicMaterial({ 
+          color: color, 
+          transparent: true, 
+          opacity: 1, 
+          blending: THREE.AdditiveBlending 
+        });
+        const leftStrip = new THREE.Mesh(stripGeo, stripMat);
+        leftStrip.position.set(-0.72, 0.25, 0);
+        carGroup.add(leftStrip);
+        
+        const rightStrip = new THREE.Mesh(stripGeo, stripMat);
+        rightStrip.position.set(0.72, 0.25, 0);
+        carGroup.add(rightStrip);
+        
+        // Wheels with glowing rims
+        const wheelGeo = new THREE.TorusGeometry(0.25, 0.08, 8, 16);
+        const wheelMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+        const rimMat = new THREE.MeshBasicMaterial({ 
+          color: color, 
+          transparent: true, 
+          opacity: 0.8,
+          blending: THREE.AdditiveBlending 
+        });
+        
+        const wheelPositions = [
+          { x: -0.65, z: 0.9 },
+          { x: 0.65, z: 0.9 },
+          { x: -0.65, z: -0.9 },
+          { x: 0.65, z: -0.9 },
+        ];
+        
+        wheelPositions.forEach(pos => {
+          const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+          wheel.rotation.y = Math.PI / 2;
+          wheel.position.set(pos.x, 0.15, pos.z);
+          carGroup.add(wheel);
+          
+          // Glowing rim center
+          const rimGeo = new THREE.CircleGeometry(0.15, 8);
+          const rim = new THREE.Mesh(rimGeo, rimMat);
+          rim.rotation.y = Math.PI / 2;
+          rim.position.set(pos.x + (pos.x > 0 ? 0.1 : -0.1), 0.15, pos.z);
+          carGroup.add(rim);
+        });
+        
+        // Headlights (bright white with glow)
+        const headlightGeo = new THREE.CircleGeometry(0.12, 8);
+        const headlightMat = new THREE.MeshBasicMaterial({ 
+          color: 0xffffff,
+          transparent: true,
+          opacity: 1,
+          blending: THREE.AdditiveBlending
+        });
+        
+        const leftHead = new THREE.Mesh(headlightGeo, headlightMat);
+        leftHead.position.set(-0.45, 0.3, 1.52);
+        carGroup.add(leftHead);
+        
+        const rightHead = new THREE.Mesh(headlightGeo, headlightMat);
+        rightHead.position.set(0.45, 0.3, 1.52);
+        carGroup.add(rightHead);
+        
+        // Headlight beams
+        const beamGeo = new THREE.ConeGeometry(0.3, 2, 8, 1, true);
+        const beamMat = new THREE.MeshBasicMaterial({ 
+          color: 0xffffee, 
+          transparent: true, 
+          opacity: 0.15,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        
+        const leftBeam = new THREE.Mesh(beamGeo, beamMat);
+        leftBeam.rotation.x = -Math.PI / 2;
+        leftBeam.position.set(-0.45, 0.3, 2.5);
+        carGroup.add(leftBeam);
+        
+        const rightBeam = new THREE.Mesh(beamGeo, beamMat);
+        rightBeam.rotation.x = -Math.PI / 2;
+        rightBeam.position.set(0.45, 0.3, 2.5);
+        carGroup.add(rightBeam);
+        
+        // Tail lights (red glow)
+        const tailGeo = new THREE.BoxGeometry(0.5, 0.08, 0.05);
+        const tailMat = new THREE.MeshBasicMaterial({ 
+          color: 0xff0000,
+          transparent: true,
+          opacity: 1,
+          blending: THREE.AdditiveBlending
+        });
+        const tailLight = new THREE.Mesh(tailGeo, tailMat);
+        tailLight.position.set(0, 0.35, -1.53);
+        carGroup.add(tailLight);
+        
+        // Exhaust flames (animated in update loop)
+        const flameGeo = new THREE.ConeGeometry(0.1, 0.5, 6);
+        const flameMat = new THREE.MeshBasicMaterial({ 
+          color: 0xff6600, 
+          transparent: true, 
+          opacity: 0.8,
+          blending: THREE.AdditiveBlending
+        });
+        const leftFlame = new THREE.Mesh(flameGeo, flameMat);
+        leftFlame.rotation.x = Math.PI / 2;
+        leftFlame.position.set(-0.3, 0.15, -1.8);
+        leftFlame.name = 'flame';
+        carGroup.add(leftFlame);
+        
+        const rightFlame = new THREE.Mesh(flameGeo, flameMat);
+        rightFlame.rotation.x = Math.PI / 2;
+        rightFlame.position.set(0.3, 0.15, -1.8);
+        rightFlame.name = 'flame';
+        carGroup.add(rightFlame);
+        
+        // Speed trail particles
+        for (let i = 0; i < 5; i++) {
+          const trailGeo = new THREE.SphereGeometry(0.08 - i * 0.01, 4, 4);
+          const trailMat = new THREE.MeshBasicMaterial({ 
+            color: color, 
+            transparent: true, 
+            opacity: 0.6 - i * 0.1,
+            blending: THREE.AdditiveBlending
+          });
+          const trail = new THREE.Mesh(trailGeo, trailMat);
+          trail.position.set(0, 0.25, -1.8 - i * 0.4);
+          carGroup.add(trail);
+        }
+        
+        // Outer glow aura
+        const auraGeo = new THREE.SphereGeometry(2, 8, 8);
+        const auraMat = new THREE.MeshBasicMaterial({ 
+          color: color, 
+          transparent: true, 
+          opacity: 0.1, 
+          blending: THREE.AdditiveBlending,
+          side: THREE.BackSide
+        });
+        const aura = new THREE.Mesh(auraGeo, auraMat);
+        aura.position.y = 0.3;
+        carGroup.add(aura);
+        
+        return carGroup;
+    };
+
     const spawnRunner = (trackIndex: number) => {
         const color = FEATURED_MARKETS[trackIndex].color;
-        const geometry = new THREE.CapsuleGeometry(0.3, 1, 4, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Core white
-        const mesh = new THREE.Mesh(geometry, material);
+        const carMesh = createCarMesh(color);
         
-        // Glow shell
-        const glowGeo = new THREE.CapsuleGeometry(0.5, 1.2, 4, 8);
-        const glowMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
-        const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-        mesh.add(glowMesh);
-
-        // Rotate capsule to lay flat
-        mesh.rotation.x = Math.PI / 2;
-        glowMesh.rotation.x = 0; // Relative to parent? No, capsule orientation is Y-up.
-
-        scene.add(mesh);
+        scene.add(carMesh);
         
         runners.push({
-            mesh,
+            mesh: carMesh as unknown as THREE.Mesh,
             trackIndex,
             progress: 0,
-            speed: 0.005 + Math.random() * 0.01 // Variable speed based on "odds"
+            speed: 0.006 + Math.random() * 0.01
         });
     };
     triggerRunnerRef.current = spawnRunner;
+    
+    // Random runner spawner
+    const spawnRandomRunner = () => {
+      const trackIndex = Math.floor(Math.random() * 3);
+      spawnRunner(trackIndex);
+      // Schedule next spawn randomly between 2-5 seconds
+      setTimeout(spawnRandomRunner, 2000 + Math.random() * 3000);
+    };
+    // Start random spawning after 2 seconds
+    setTimeout(spawnRandomRunner, 2000);
 
     // 4. Spark/Explosion System
     interface Spark {
@@ -251,10 +432,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           r.progress += r.speed;
           
           if (r.progress >= 1) {
-              // Reached finish
+              // Reached finish - big explosion!
               const curve = trackCurves[r.trackIndex];
               const endPoint = curve.getPoint(1);
-              spawnSparks(endPoint, FEATURED_MARKETS[r.trackIndex].color);
+              // Spawn more sparks for dramatic effect
+              for (let j = 0; j < 3; j++) {
+                spawnSparks(endPoint, FEATURED_MARKETS[r.trackIndex].color);
+              }
               
               scene.remove(r.mesh);
               runners.splice(i, 1);
@@ -267,6 +451,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
           r.mesh.position.copy(point);
           r.mesh.lookAt(point.clone().add(tangent));
+          
+          // Animate flames on the car
+          r.mesh.children.forEach((child: THREE.Object3D) => {
+            if (child.name === 'flame') {
+              child.scale.z = 0.8 + Math.random() * 0.4;
+              child.scale.x = 0.8 + Math.random() * 0.3;
+              child.scale.y = 0.8 + Math.random() * 0.3;
+            }
+          });
       }
 
       // C. Update Sparks
@@ -322,9 +515,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs mb-2 tracking-widest uppercase">
                     <Globe size={14} /> Somnia Testnet Live
                 </div>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
-                    KINETIX <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">PROTOCOL</span>
-                </h1>
+                <div className="flex items-center gap-4 mb-2">
+                    <img 
+                      src="https://image.pollinations.ai/prompt/Modern%20crypto%20logo%2C%20letter%20K%20formed%20by%20three%20racing%20track%20lanes%20converging%20into%20one%20point%2C%20speed%20lines%20effect%2C%20gradient%20from%20cyan%20to%20purple%2C%20glowing%20neon%20style%2C%20dark%20background%2C%20minimalist%20vector%20design%2C%20no%20text%2C%20icon%20only%2C%20fintech%20blockchain%20aesthetic?seed=123&width=512&height=512"
+                      alt="Kinetix Logo"
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-xl shadow-lg shadow-purple-500/30"
+                    />
+                    <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
+                        KINETIX <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">PROTOCOL</span>
+                    </h1>
+                </div>
                 <p className="text-slate-400 max-w-md mt-2 text-lg">
                     The first yield-bearing prediction layer. <br/>
                     <span className="text-slate-500 text-sm">Collateral earns DeFi yield while you play.</span>

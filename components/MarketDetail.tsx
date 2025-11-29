@@ -53,7 +53,7 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({ market, user, onBack
         const newVal = last.value * (1 + (Math.random() * 0.01));
         return [...prev.slice(1), { time: last.time + 1, value: newVal }];
       });
-    }, 2000);
+    }, 10000); // 10秒刷新一次
     return () => clearInterval(interval);
   }, []);
 
@@ -149,7 +149,7 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({ market, user, onBack
             </div>
 
             {/* Chart */}
-            <div className="h-72 w-full bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl p-6 border border-slate-800 mb-8 relative overflow-hidden group">
+            <div className="w-full bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl p-6 border border-slate-800 mb-8 relative overflow-hidden group">
                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-500 opacity-50"></div>
                <div className="flex justify-between items-center mb-4 relative z-10">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -162,7 +162,7 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({ market, user, onBack
                   </div>
                </div>
                
-               <ResponsiveContainer width="100%" height="100%">
+               <ResponsiveContainer width="100%" height={200} minHeight={200}>
                   <AreaChart data={yieldData}>
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

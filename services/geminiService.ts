@@ -1,12 +1,12 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn("API_KEY is missing from environment variables.");
+    console.warn("VITE_GEMINI_API_KEY is missing from environment variables.");
     return null;
   }
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenerativeAI(apiKey);
 };
 
 export const analyzeMarketEvent = async (question: string, description: string): Promise<string> => {
@@ -25,12 +25,12 @@ export const analyzeMarketEvent = async (question: string, description: string):
       Keep it under 150 words. Format as a bulleted list.
     `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-    return response.text || "Analysis could not be generated at this time.";
+    return text || "Analysis could not be generated at this time.";
   } catch (error) {
     console.error("Gemini API Error:", error);
     return "Error generating market analysis. Please try again later.";

@@ -54,6 +54,7 @@ export function useOnChainMarket(marketKey: 'm1' | 'm2' | 'm3') {
     functionName: 'getMarket',
     args: [marketId],
     chainId: SOMNIA_CHAIN_ID,
+    query: { refetchInterval: false, staleTime: 30000 }, // Disable auto-refresh, cache for 30s
   });
 
   const { data: vaultData, isLoading: loadingVault } = useReadContract({
@@ -62,6 +63,7 @@ export function useOnChainMarket(marketKey: 'm1' | 'm2' | 'm3') {
     functionName: 'getYieldGenerated',
     args: [marketId],
     chainId: SOMNIA_CHAIN_ID,
+    query: { refetchInterval: false, staleTime: 30000 },
   });
 
   const { data: apyData } = useReadContract({
@@ -69,6 +71,7 @@ export function useOnChainMarket(marketKey: 'm1' | 'm2' | 'm3') {
     abi: VaultABI,
     functionName: 'getCurrentAPY',
     chainId: SOMNIA_CHAIN_ID,
+    query: { refetchInterval: false, staleTime: 30000 },
   });
 
   const isLoading = loadingMarket || loadingVault;
@@ -113,6 +116,7 @@ export function useAllOnChainMarkets() {
     abi: MarketABI,
     functionName: 'getAllMarkets',
     chainId: SOMNIA_CHAIN_ID,
+    query: { refetchInterval: false, staleTime: 60000 }, // Cache for 60s
   });
 
   // Use contract data or fallback to known IDs
@@ -129,7 +133,7 @@ export function useAllOnChainMarkets() {
       args: [marketId] as const,
       chainId: SOMNIA_CHAIN_ID,
     })),
-    query: { enabled: marketIdsList.length > 0 },
+    query: { enabled: marketIdsList.length > 0, refetchInterval: false, staleTime: 30000 },
   } as any);
 
   // Batch read yield data
@@ -141,7 +145,7 @@ export function useAllOnChainMarkets() {
       args: [marketId] as const,
       chainId: SOMNIA_CHAIN_ID,
     })),
-    query: { enabled: marketIdsList.length > 0 },
+    query: { enabled: marketIdsList.length > 0, refetchInterval: false, staleTime: 30000 },
   } as any);
 
   // Read current APY
@@ -150,6 +154,7 @@ export function useAllOnChainMarkets() {
     abi: VaultABI,
     functionName: 'getCurrentAPY',
     chainId: SOMNIA_CHAIN_ID,
+    query: { refetchInterval: false, staleTime: 30000 },
   });
 
   const isLoading = loadingIds || loadingMarkets || loadingYields;

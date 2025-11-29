@@ -319,39 +319,39 @@ class SDSService {
   }
 
   /**
-   * Start polling for new blocks
+   * Start polling for new blocks - DISABLED to prevent excessive RPC calls
+   * Can be manually triggered via manualRefresh() if needed
    */
   private startBlockPolling(): void {
-    // Poll every 2 seconds for new blocks
-    this.pollingInterval = setInterval(async () => {
-      if (!this.publicClient || !this.isConnected) return;
+    // Polling disabled - use manualRefresh() instead
+    console.log('[SDS] Block polling disabled. Use manualRefresh() for updates.');
+  }
 
-      try {
-        const newBlockNumber = await this.publicClient.getBlockNumber();
-        const newBlock = Number(newBlockNumber);
+  /**
+   * Manual refresh - call this when you need to update data
+   */
+  async manualRefresh(): Promise<void> {
+    if (!this.publicClient || !this.isConnected) return;
+
+    try {
+      const newBlockNumber = await this.publicClient.getBlockNumber();
+      const newBlock = Number(newBlockNumber);
+      
+      if (newBlock > this.blockNumber) {
+        this.blockNumber = newBlock;
         
-        if (newBlock > this.blockNumber) {
-          this.blockNumber = newBlock;
-          
-          // Notify block subscribers
-          this.blockCallbacks.forEach(cb => cb({
-            blockNumber: this.blockNumber,
-            timestamp: Date.now(),
-          }));
+        // Notify block subscribers
+        this.blockCallbacks.forEach(cb => cb({
+          blockNumber: this.blockNumber,
+          timestamp: Date.now(),
+        }));
 
-          // Poll for new events
-          await this.pollForEvents();
-        }
-      } catch (error) {
-        console.error('[SDS] Error polling block:', error);
-        // Try to reconnect if polling fails
-        if (this.isConnected) {
-          this.isConnected = false;
-          this.notifyConnectionChange(false);
-          this.handleReconnect();
-        }
+        // Poll for new events
+        await this.pollForEvents();
       }
-    }, 2000);
+    } catch (error) {
+      console.error('[SDS] Error during manual refresh:', error);
+    }
   }
 
   private stopBlockPolling(): void {

@@ -41,9 +41,11 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onConnect, onViewChange, c
               className="flex-shrink-0 cursor-pointer flex items-center gap-2 group"
               onClick={() => onViewChange('MARKET_LIST')}
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all">
-                K
-              </div>
+              <img 
+                src="https://image.pollinations.ai/prompt/Modern%20crypto%20logo%2C%20letter%20K%20formed%20by%20three%20racing%20track%20lanes%20converging%20into%20one%20point%2C%20speed%20lines%20effect%2C%20gradient%20from%20cyan%20to%20purple%2C%20glowing%20neon%20style%2C%20dark%20background%2C%20minimalist%20vector%20design%2C%20no%20text%2C%20icon%20only%2C%20fintech%20blockchain%20aesthetic?seed=123&width=512&height=512"
+                alt="Kinetix Logo"
+                className="w-8 h-8 rounded-lg shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all"
+              />
               <span className="font-bold text-xl text-white tracking-tight">
                 Kinetix <span className="text-purple-400 font-normal">Protocol</span>
               </span>

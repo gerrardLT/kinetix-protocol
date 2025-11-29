@@ -116,8 +116,9 @@ const App: React.FC = () => {
     connect 
   } = useWallet();
 
-  // SDS connection for real-time updates
-  const { isConnected: sdsConnected, lastBlockNumber } = useSDS();
+  // SDS connection for real-time updates - only track connection status, not block number
+  // Block number updates were causing excessive re-renders
+  const { isConnected: sdsConnected } = useSDS();
 
   // Fetch markets from chain only
   const { markets: onChainMarkets, isLoading: loadingMarkets, refetch: refetchMarkets } = useAllOnChainMarkets();
@@ -271,7 +272,7 @@ const App: React.FC = () => {
             : 'bg-red-500/20 text-red-400 border border-red-500/30'
         }`}>
           {sdsConnected ? <Wifi size={12} /> : <WifiOff size={12} />}
-          {sdsConnected ? `Live · Block ${lastBlockNumber}` : 'Reconnecting...'}
+          {sdsConnected ? 'Live' : 'Reconnecting...'}
         </div>
       </div>
       <LiveTicker />

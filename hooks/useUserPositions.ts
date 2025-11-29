@@ -158,6 +158,8 @@ export function useOnChainPositions(userAddress: `0x${string}` | undefined) {
     })),
     query: {
       enabled: !!userAddress,
+      refetchInterval: false,
+      staleTime: 30000, // Cache for 30s
     },
   } as any);
 
