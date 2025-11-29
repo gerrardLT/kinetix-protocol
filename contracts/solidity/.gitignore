@@ -1,0 +1,14 @@
+# 环境变量（包含私钥）
+.env
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+
+# Node
+node_modules/
+
+# Coverage
+coverage/
+coverage.json
